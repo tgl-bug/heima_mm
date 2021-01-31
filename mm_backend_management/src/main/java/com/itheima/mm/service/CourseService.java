@@ -1,16 +1,16 @@
 package com.itheima.mm.service;
 
-import com.itheima.mm.dao.CatlogDao;
+import com.itheima.mm.dao.CatalogDao;
 import com.itheima.mm.dao.CourseDao;
 import com.itheima.mm.dao.QuestionDao;
 import com.itheima.mm.dao.TagDao;
 import com.itheima.mm.entity.PageResult;
 import com.itheima.mm.entity.QueryPageBean;
+import com.itheima.mm.pojo.Catalog;
 import com.itheima.mm.pojo.Course;
 import com.itheima.mm.utils.SqlSessionFactoryUtils;
 import org.apache.ibatis.session.SqlSession;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -51,9 +51,9 @@ public class CourseService {
     public void deleteById(Integer id) throws Exception {
         SqlSession sqlSession = SqlSessionFactoryUtils.openSqlSession();
         //判断当前要删除的学科是否有关联的二级目录
-        CatlogDao catlogDao = sqlSession.getMapper(CatlogDao.class);
+        CatalogDao catalogDao = sqlSession.getMapper(CatalogDao.class);
         //根据courseId到t_catalog表中查询数据条数
-        Long catalogCount = catlogDao.findCountByCourseId(id);
+        Long catalogCount = catalogDao.findCountByCourseId(id);
         if (catalogCount>0) {
             //有关联的二级目录，不能删除
             throw new RuntimeException("有关联的二级目录，不能删除");
@@ -81,7 +81,15 @@ public class CourseService {
     public List<Course> findAll(String status) throws Exception {
         SqlSession sqlSession = SqlSessionFactoryUtils.openSqlSession();
         CourseDao courseDao = sqlSession.getMapper(CourseDao.class);
+
+        CatalogDao catalogDao = sqlSession.getMapper(CatalogDao.class);
+
         List<Course> courseList = courseDao.findAll(status);
+        for (Course course : courseList) {
+            List<Catalog> catalogList = catalogDao.findCatalogListByCourseId(course.getId());
+            course.setCatalogList(catalogList);
+
+        }
         SqlSessionFactoryUtils.commitAndClose(sqlSession);
         return courseList;
     }
