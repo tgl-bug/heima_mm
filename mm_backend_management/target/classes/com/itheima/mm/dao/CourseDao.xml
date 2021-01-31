@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.CourseDao">
+    <insert id="add" parameterType="Course">
+        insert into t_course values (null,#{name},#{icon},#{createDate},#{isShow},#{userId},#{orderNo})
+    </insert>
+    <update id="update" parameterType="Course">
+        update t_course set name =#{name},isShow=#{isShow} where id=#{id}
+    </update>
+    <delete id="deleteById" parameterType="int">
+        delete from t_course where id=#{id}
+    </delete>
+
+    <sql id="select_where">
+        <where>
+            <if test="queryParams != null">
+                <if test="queryParams.status != null and queryParams.status != ''">
+                    and isShow=#{queryParams.status}
+                </if>
+
+                <if test="queryParams.name != null and queryParams.name != ''">
+                    and name like concat("%",#{queryParams.name},"%")
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <select id="findTotalCount" resultType="long" parameterType="QueryPageBean">
+        select count(*) from t_course
+        <include refid="select_where"></include>
+    </select>
+
+    <select id="findPageList" resultType="com.itheima.mm.pojo.Course" parameterType="QueryPageBean">
+        select
+        id,name,isShow,createDate,
+        (select count(*) from t_catalog where courseId=c.id) catalogQty,
+        (select count(*) from t_tag where courseId=c.id) tagQty,
+        (select count(*) from t_question where courseId=c.id) questionQty,
+        (select username from t_user where id=c.userId) creator
+        from t_course c
+        <include refid="select_where"></include>
+        limit #{offset},#{pageSize}
+    </select>
+    <select id="findAll" resultType="com.itheima.mm.pojo.Course" parameterType="String">
+        select * from t_course where isShow=#{status}
+    </select>
+</mapper>
