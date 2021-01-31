@@ -185,206 +185,97 @@
 				}
 			},
 			methods: {
-				// 学科下拉列表
+				//获取所有学科信息，初始化学科下拉列表
 				initCourses() {
 					let t = this;
-
 					// 必传参数
 					let params = {
 						status: 0
 					};
-					console.log("学科下拉列表请求参数：");
-					console.log(params);
 
-					let response = {
-						data:{
-							"flag": true,
-							"message": "获取列表成功",
-							"result": [
-								{
-									"catalogList": [
-										{
-											"id": 1,
-											"name": "Java基础"
-										},
-										{
-											"id": 2,
-											"name": "JavaWeb"
-										},
-										{
-											"id": 3,
-											"name": "Spring MVC"
-										},
-										{
-											"id": 4,
-											"name": "Spring boot"
-										},
-										{
-											"id": 8,
-											"name": "进程线程"
-										},
-										{
-											"id": 13,
-											"name": "aaaa"
-										}
-									],
-									"id": 1,
-									"name": "Java"
-								},
-								{
-									"catalogList": [
-										{
-											"id": 5,
-											"name": "Python基础"
-										},
-										{
-											"id": 6,
-											"name": "函数编程"
-										},
-										{
-											"id": 7,
-											"name": "面向对象编程"
-										}
-									],
-									"id": 2,
-									"name": "Python"
-								},
-								{
-									"catalogList": [],
-									"id": 3,
-									"name": "大数据"
-								},
-								{
-									"catalogList": [],
-									"id": 4,
-									"name": "Php"
-								},
-								{
-									"catalogList": [],
-									"id": 8,
-									"name": "888"
-								},
-								{
-									"catalogList": [],
-									"id": 9,
-									"name": "2"
-								}
-							]
+					//1. 发送异步请求，获取所有学科列表
+					axios.get("/course/findAll.do?status="+status).then(response=>{
+						if (response.data.flag) {
+							//获取学科列表成功
+							this.$message({
+											type:"success",
+											message:response.data.message,
+											showClose:true
+										})
+							// 将响应数据设置给数据模型
+							this.courses = response.data.result
+						}else {
+							//获取学科列表失败
+							this.$message({
+							                type:"error",
+							                message:response.data.message,
+							                showClose:true
+							            })
 						}
-					}
-
-					t.courses =response.data.result;
-
+					})
 
 
 				},
-				// 试题分页列表
+				//查询试题分页列表
 				getList() {
 					let t = this;
 
 					// 必传参数
 					let params = {
-						currentPage: t.pagination.pageNum,
-						pageSize: t.pagination.pageSize
+						currentPage: t.pagination.pageNum,//当前页数
+						pageSize: t.pagination.pageSize//每页条数
 					};
 					// 选传参数
+					// 搜索条件
 					let queryParams = {};
 					let courseId = t.requestParameters.courseId;
+					//如果选择了学科，就将学科id放到搜索条件中
 					if (courseId !== '') {
 						queryParams.courseId = courseId;
 					}
+
 					let difficulty = t.requestParameters.difficulty;
+					//如果选择了难度，就将难度放到搜索条件中
 					if (difficulty !== '') {
 						queryParams.difficulty = difficulty;
 					}
+
+
 					let type = t.requestParameters.type;
+					//如果选择了提醒，就将提醒放到搜索条件中
 					if (type !== '') {
 						queryParams.type = type;
 					}
+
+
 					let keyWord = t.requestParameters.keyWord;
+					//如果输入了搜索关键字，就将关键字放到搜索条件中
 					if (keyWord !== '') {
 						queryParams.keyWord = keyWord;
 					}
+
+					//如果搜索条件中有内容，那么就将搜索条件添加到请求参数中
 					if (Object.keys(queryParams).length) {
 						params.queryParams = queryParams;
 					}
 					console.log("基础题库列表请求参数：");
 					console.log(params);
 
-				  let data = {
-						"flag": true,
-						"message": "获取题目列表成功",
-						"result": {
-							"rows": [
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 4,
-									"id": 11,
-									"number": "",
-									"status": 0,
-									"subject": "<p>反爬虫措施？</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 5,
-									"id": 12,
-									"number": "",
-									"status": 0,
-									"subject": "<p>加入Redis里面有1亿个key，其中10w个key是以某个固定的一直的前缀开头的，如何将他们全部找出来。</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 3,
-									"id": 13,
-									"number": "",
-									"status": 0,
-									"subject": "<p>Redis是多进程还是多线程的，简单描述redis数据库对于线程的管理机制</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 3,
-									"id": 14,
-									"number": "",
-									"status": 0,
-									"subject": "<p>redis相比memcached有哪些优势</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 2,
-									"id": 15,
-									"number": "",
-									"status": 0,
-									"subject": "<p>谈谈对线程池的理解?</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								}
-							],
-							"total": 20
+					//发送异步请求
+					axios.post("/question/findBasicByPage.do",params).then(response=>{
+						if (response.data.flag) {
+							//获取基础题库列表成功
+							//赋值操作
+							this.pagination.total = response.data.result.total
+							this.items = response.data.result.rows
+						}else {
+							this.$message({
+							    type:"error",
+							    message:response.data.message,
+							    showClose:true
+							})
 						}
-					}
-					t.pagination.total = data.result.total;
-					t.items = data.result.rows;
-					t.loading = true;
-
-
+					})
 				},
 				//清除
 				handleRest() {
@@ -394,6 +285,7 @@
 				},
 				//搜索
 				handleSearch() {
+					this.pagination.pageNum = 1
 					this.getList();
 				},
 				handleSizeChange(val) {

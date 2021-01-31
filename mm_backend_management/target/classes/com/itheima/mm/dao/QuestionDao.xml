@@ -3,7 +3,48 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itheima.mm.dao.QuestionDao">
+
+    <sql id="select_where">
+        <if test="queryParams != null">
+            <if test="queryParams.courseId != null">
+                and courseId=#{queryParams.courseId}
+            </if>
+
+            <if test="queryParams.difficulty != null">
+                and difficulty=#{queryParams.difficulty}
+            </if>
+
+            <if test="queryParams.keyWord != null">
+                and subject like concat("%",#{queryParams.keyWord},"%")
+            </if>
+
+            <if test="queryParams.type != null">
+                and type=#{queryParams.type}
+            </if>
+        </if>
+    </sql>
+
     <select id="findCountByCourseId" parameterType="int" resultType="Long">
         select count(*) from t_question where courseId = #{id}
+    </select>
+    <select id="findTotalBasicCount" resultType="Long" parameterType="QueryPageBean">
+        select count(*) from t_question
+        where isClassic = 0
+        <include refid="select_where"></include>
+    </select>
+    <select id="findBasicPageList" resultType="Question" parameterType="QueryPageBean">
+        select
+        10000+id number,type,subject,createDate,difficulty,
+--         courseName取别名
+--         creator取别名
+--         usedQty取别名
+        (select name from t_course where id=q.courseId) courseName,
+        (select username from t_user where id=q.userId) creator,
+        (select count(*) from tr_member_question where questionId=q.id) usedQty
+        from t_question q
+        where isClassic=0
+        <include refid="select_where"></include>
+--         限制结果返回的数量
+        limit #{offset},#{pageSize}
     </select>
 </mapper>

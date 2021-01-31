@@ -7,6 +7,6 @@
         select count(*) from t_catalog where courseId=#{id}
     </select>
     <select id="findCatalogListByCourseId" parameterType="int" resultType="com.itheima.mm.pojo.Catalog">
-        select id,name from t_catalog where couseId=#{courseId};
+        select id,name from t_catalog where courseId=#{courseId};
     </select>
 </mapper>
