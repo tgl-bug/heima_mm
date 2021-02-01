@@ -47,4 +47,25 @@
 --         限制结果返回的数量
         limit #{offset},#{pageSize}
     </select>
+    <insert id="add" parameterType="Question">
+        insert into t_question(
+        subject,type,difficulty,analysis,analysisVideo,
+        remark,isClassic,status,reviewStatus,createDate,
+        userId,companyId,catalogId,courseId
+        )
+        values (
+        #{subject},#{type},#{difficulty},#{analysis},#{analysisVideo},
+        #{remark},#{isClassic},#{status},#{reviewStatus},#{createDate},
+        #{userId},#{companyId},#{catalogId},#{courseId}
+        )
+
+        <!--获取自增长id-->
+        <selectKey keyProperty="id" keyColumn="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+    <insert id="addQuestionTag" parameterType="Map">
+        insert  into tr_question_tag values (#{questionId},#{tagId})
+    </insert>
+
 </mapper>
