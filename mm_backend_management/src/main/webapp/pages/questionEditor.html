@@ -81,7 +81,7 @@
                                             action=""
                                             :show-file-list="false"
                                             :http-request="function(params) {return handleHttpRequest(params, index)}">
-                                        <img v-if="item.imgUrl" :src="appPath + '/' + item.imgUrl" class="avatar">
+                                        <img v-if="item.imgUrl" :src="'http://localhost:8833/' + item.imgUrl" class="avatar">
                                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                     </el-upload>
                                 </div>
@@ -99,7 +99,7 @@
                                             action=""
                                             :show-file-list="false"
                                             :http-request="function(params) {return handleHttpRequest(params, index)}">
-                                        <img v-if="item.imgUrl" :src="appPath + '/' + item.imgUrl" class="avatar">
+                                        <img v-if="item.imgUrl" :src="'http://localhost:8833/' + item.imgUrl" class="avatar">
                                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                     </el-upload>
                                 </div>
@@ -172,18 +172,20 @@
                 tags: [],
                 // 单选题型：选中的索引
                 radioIndex: '',
+
+                //要传递给服务器端的数据
                 formData: {
-                    // 试题id
+                    // 试题id，如果是添加试题，id为0，如果是修改试题就是对应试题的id
                     id: 0,
                     // 是否精选题目
                     is_classic: 0,
-                    // 学科id
+                    //学科id
                     courseId: '',
-                    // 目录id
+                    //目录id
                     catalogId: '',
-                    // 企业id
+                    //企业id
                     companyId: '',
-                    // 区域ids
+                    //城市的ids
                     cityIds: [],
                     // 方向ids
                     industryIds: [],
@@ -476,104 +478,23 @@
                 this.catalogs = course.catalogList;
                 this.tags = course.tagList;
             },
-            // 学科下拉列表
+            //获取所有学科，初始化学科下拉列表
             initCourses() {
                 let t = this;
-                let response = {
-                    data:{
-                        "flag": true,
-                        "message": "获取列表成功",
-                        "result": [
-                            {
-                                "catalogList": [
-                                    {
-                                        "id": 1,
-                                        "name": "Java基础"
-                                    },
-                                    {
-                                        "id": 2,
-                                        "name": "JavaWeb"
-                                    },
-                                    {
-                                        "id": 3,
-                                        "name": "Spring MVC"
-                                    },
-                                    {
-                                        "id": 4,
-                                        "name": "Spring boot"
-                                    },
-                                    {
-                                        "id": 8,
-                                        "name": "进程线程"
-                                    },
-                                    {
-                                        "id": 13,
-                                        "name": "aaaa"
-                                    }
-                                ],
-                                "tagList": [
-                                    {
-                                        "id": 1,
-                                        "name": "String字符串"
-                                    },
-                                    {
-                                        "id": 2,
-                                        "name": "Java类与对象"
-                                    },
-                                    {
-                                        "id": 3,
-                                        "name": "Servlet"
-                                    },
-                                    {
-                                        "id": 4,
-                                        "name": "多线程"
-                                    }
-                                ],
-                                "id": 1,
-                                "name": "Java"
-                            },
-                            {
-                                "catalogList": [
-                                    {
-                                        "id": 5,
-                                        "name": "Python基础"
-                                    },
-                                    {
-                                        "id": 6,
-                                        "name": "函数编程"
-                                    },
-                                    {
-                                        "id": 7,
-                                        "name": "面向对象编程"
-                                    }
-                                ],
-                                "id": 2,
-                                "name": "Python"
-                            },
-                            {
-                                "catalogList": [],
-                                "id": 3,
-                                "name": "大数据"
-                            },
-                            {
-                                "catalogList": [],
-                                "id": 4,
-                                "name": "Php"
-                            },
-                            {
-                                "catalogList": [],
-                                "id": 8,
-                                "name": "888"
-                            },
-                            {
-                                "catalogList": [],
-                                "id": 9,
-                                "name": "2"
-                            }
-                        ]
+                //发送异步请求，获取所有学科数据
+                axios.get("/course/findAll.do").then(response=>{
+                    if (response.data.flag) {
+                        //获取成功
+                        this.courses = response.data.result
+                    }else {
+                        //获取失败
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClose:true
+                        })
                     }
-                }
-                t.courses = response.data.result;
+                })
             },
             changeCourse() {
                 let courseId = this.formData.courseId;
@@ -823,13 +744,36 @@
                 }
                 return cityIds;
             },
-            // 自定义上传的实现
+            //文件上传的方法
             handleHttpRequest(params, index) {
                 let file = params.file;
-
+                //请求参数
                 let formData = new FormData();
+                //键值对: key就是文件名、value就是文件
                 formData.append(file.name, file);
-                let response = {};
+                //文件上传一定是发送post请求,而且一定要设置请求参数的类型（表单数据类型）
+                axios.defaults.headers.post['Content-Type'] = 'multipart/form-data;charse=UTF-8';
+                axios.post("/common/uploadFile.do",formData).then(response=>{
+                    if (response.data.flag) {
+                        //文件上传成功
+                        this.$message({
+                            type:"success",
+                            message:response.data.message,
+                            showClose:true
+                        })
+                        //1. 将响应的数据(文件存储路径)，设置给选项的imgUrl属性
+                        this.formData.questionItemList[index].imgUrl = response.data.result
+
+                        //2. 图片回显
+                    }else {
+                        //文件上传失败
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClose:true
+                        })
+                    }
+                })
             },
             // 提交表单
             createItem() {
@@ -838,9 +782,11 @@
                 this.$refs['formData'].validate((valid) => {
                     isValid = valid;
                 });
+                // 如果表单校验不通过，直接终止
                 if (!isValid) {
                     return;
                 }
+                // 封装请求参数
                 let formData = this.formData;
 
                 // 包装企业相关数据
@@ -894,18 +840,35 @@
                 formData.tagList = tagList;
                 console.log("新增更新题库请求参数：");
                 console.log(this.formData);
-                this.$message.success("操作成功");
-                // 返回到上一级
-                if (!this.formData.is_classic) {
-                    setTimeout(function () {
-                            //window.location.href = "questionBasicList.html";
+
+                //到这里为止，请求参数已经弄好了
+                //发送异步请求提交请求参数
+                axios.post("/question/add.do",formData).then(response=>{
+                    if (response.data.flag) {
+                        this.$message({
+                            type:"success",
+                            message:response.data.message,
+                            showClose:true
+                        })
+                        // 返回到上一级
+                        if (!this.formData.is_classic) {
+                            setTimeout(function () {
+                                    window.location.href = "questionBasicList.html";
+                                }
+                                , 1000);
+                        } else {
+                            setTimeout(function () {
+                                window.location.href = "questionClassicList.html";
+                            }, 1000);
                         }
-                        , 1000);
-                } else {
-                    setTimeout(function () {
-                        //window.location.href = "questionClassicList.html";
-                    }, 1000);
-                }
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClose:true
+                        })
+                    }
+                })
             },
             // 取消提交
             cancelItem() {

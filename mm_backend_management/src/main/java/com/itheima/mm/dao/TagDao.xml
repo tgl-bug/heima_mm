@@ -6,4 +6,7 @@
     <select id="findCountByCourseId" resultType="Long" parameterType="int">
         select count(*) from t_tag where courseId=#{id}
     </select>
+    <select id="findTagListByCourseId" parameterType="int" resultType="Tag">
+        select id,name from t_tag where courseId=#{courseId};
+    </select>
 </mapper>

@@ -4,6 +4,7 @@ import com.itheima.mm.entity.QueryPageBean;
 import com.itheima.mm.pojo.Question;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author By--tgl
@@ -18,4 +19,8 @@ public interface QuestionDao {
     Long findTotalBasicCount(QueryPageBean queryPageBean);
 
     List<Question> findBasicPageList(QueryPageBean queryPageBean);
+
+    void add(Question question);
+
+    void addQuestionTag(Map paramMap);
 }

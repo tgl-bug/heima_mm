@@ -43,7 +43,23 @@
         <include refid="select_where"></include>
         limit #{offset},#{pageSize}
     </select>
-    <select id="findAll" resultType="com.itheima.mm.pojo.Course" parameterType="String">
-        select * from t_course where isShow=#{status}
+    <!--进行一对多的分步查询映射-->
+    <resultMap id="courseCatalogMap" type="Course">
+        <id property="id" column="id"></id>
+        <!--一对多使用collection标签-->
+        <!--查询二级目录列表-->
+        <collection property="catalogList" ofType="Catalog" column="id"
+                    select="com.itheima.mm.dao.CatalogDao.findCatalogListByCourseId"></collection>
+        <!--查询标签列表-->
+        <collection property="tagList" ofType="Tag" column="id"
+                    select="com.itheima.mm.dao.TagDao.findTagListByCourseId"></collection>
+    </resultMap>
+    <select id="findAll" resultMap="courseCatalogMap" parameterType="string">
+        select id,name from t_course
+        <where>
+            <if test="status != null and status != '' and status != 'null'">
+                isShow=#{status}
+            </if>
+        </where>
     </select>
 </mapper>

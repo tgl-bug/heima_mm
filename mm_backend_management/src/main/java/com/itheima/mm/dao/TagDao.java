@@ -1,5 +1,9 @@
 package com.itheima.mm.dao;
 
+import com.itheima.mm.pojo.Tag;
+
+import java.util.List;
+
 /**
  * @author By--tgl
  * @time 2021/1/31$ 16:13$
@@ -8,4 +12,5 @@ package com.itheima.mm.dao;
  */
 public interface TagDao {
     Long findCountByCourseId(Integer id);
+    List<Tag> findTagListByCourseId(Integer courseId);
 }
