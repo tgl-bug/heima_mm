@@ -17,8 +17,9 @@ public class LocationUtil {
 	public static String parseLocation(String location){
 		// https://lbs.amap.com/api/webservice/guide/api/georegeo 逆地址解析
 		// amap_api 注册高德地图开发者，创建应用，获取apikey
-		String amap_api_key = "8f21643950153e066e4bfefc3d244e19";
+		String amap_api_key = "a0683353ac6bc5d6345b374a279f6779";
 		String url = "https://restapi.amap.com/v3/geocode/regeo?key="+amap_api_key+"&"+"location="+location;
+		//使用Http的工具类，发送get请求
 		String jsonData =  HttpUtil.httpGet(url);
 		JSONObject jsonLocation = JSON.parseObject(jsonData);
 		String city = "";

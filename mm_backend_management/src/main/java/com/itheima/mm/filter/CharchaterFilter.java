@@ -18,6 +18,14 @@ public class CharchaterFilter implements Filter {
         //将父接口转为子接口
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) rep;
+
+        //静态资源不进行过滤
+        String uri = request.getRequestURI();
+        if (uri.contains(".css") || uri.contains(".js") || uri.contains(".jpg") || uri.contains(".png")) {
+            filterChain.doFilter(request,response);
+            return;
+        }
+
         //获取请求方法
         String method = request.getMethod();
         //解决post请求中文数据乱码问题
@@ -25,7 +33,7 @@ public class CharchaterFilter implements Filter {
             request.setCharacterEncoding("utf-8");
         }
         //处理响应乱码
-        //response.setContentType("text/html;charset=utf-8");
+        response.setContentType("text/html;charset=utf-8");
         filterChain.doFilter(request,response);
     }
 

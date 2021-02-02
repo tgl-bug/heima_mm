@@ -10,7 +10,7 @@
     <typeAliases>
         <!-- 扫描包的形式创建别名，别名就是类名，不区分大小写 -->
         <package name="com.itheima.mm.pojo"/>
-        <package name="com.itheima.mm.entity"/>
+        <package name="com.itheima.mm.entry"/>
     </typeAliases>
     <!--environments配置-->
     <environments default="development">

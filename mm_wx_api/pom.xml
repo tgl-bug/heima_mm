@@ -31,6 +31,7 @@
     <jedis.version>2.7.0</jedis.version>
     <jackson.version>2.3.3</jackson.version>
   </properties>
+
   <dependencies>
     <!--自定义MVC-->
     <dependency>
@@ -38,6 +39,7 @@
       <artifactId>heima_mvc</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+
     <!--单元测试-->
     <dependency>
       <groupId>junit</groupId>
