@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.QuestionDao">
+    <select id="findCategoryListByTag" parameterType="map" resultType="map">
+        select id,name title,
+
+        (select count(*) from t_question where catalogId=c.id) allCount,
+
+        (select count(*) from tr_member_question where memberId=#{memberId}
+        and questionId in (select id from t_question where catalogId=c.id))
+        finishedCount
+
+        from t_catalog c where courseId=#{courseId}
+    </select>
+
+    <select id="findCategoryListByCompany" parameterType="map" resultType="map">
+        select id,shortName title,isFamous,
+
+        (select count(*) from t_question where companyId=c.id) allCount,
+
+        (select count(*) from tr_member_question where memberId=#{memberId}
+        and questionId in (select id from t_question where companyId=c.id))
+        finishedCount
+
+        FROM t_company c WHERE cityId=#{cityId}
+    </select>
+
+    <sql id="categoryKind">
+        <if test="categoryKind == 1">
+            catalogId=#{categoryID}
+        </if>
+        <if test="categoryKind == 2">
+            companyId=#{categoryID}
+        </if>
+    </sql>
+
+    <select id="findAllCount" parameterType="map" resultType="long">
+        select count(*) from t_question where
+
+        <!--
+            判断到底是需要按照企业查询还是按照二级目录查询
+        -->
+        <include refid="categoryKind"></include>
+    </select>
+
+    <resultMap id="questionMap" type="Question">
+        <id column="id" property="id"></id>
+        <!--调用外部查询查询tags-->
+        <collection property="tags" column="id"
+                    select="com.itheima.mm.dao.TagDao.findTagListByQuestionId"></collection>
+        <!--调用外部查询查询selection-->
+        <collection property="selection" column="id"
+                    select="com.itheima.mm.dao.QuestionItemDao.findItemListByQuestionId"></collection>
+    </resultMap>
+    <select id="findQuestionListByCategoryId" parameterType="map" resultMap="questionMap">
+        select
+        id,subject title,difficulty grade,
+        analysis content,analysisVideo video,type,
+        (select count(*) from tr_member_question
+        where memberId=#{memberId} and questionId=q.id) isFinished,
+        (select ifnull(isFavorite,0) from tr_member_question
+        where memberId=#{memberId} and questionId=q.id) isFavorite,
+        (select answerResult from tr_member_question
+        where memberId=#{memberId} and questionId=q.id) answerResult,
+        (select tag from tr_member_question
+        where memberId=#{memberId} and questionId=q.id) answerIsRight
+        <!--
+            判断是否是按照企业查询
+        -->
+        <if test="categoryKind == 2">
+            ,(select isFamous from t_company where id=#{categoryID}) isFamous
+        </if>
+        from t_question q
+        where
+        <include refid="categoryKind"></include>
+    </select>
+
+    <select id="findLastQuestionId" parameterType="map" resultType="int">
+        select ifnull(lastQuestionId,0) lastID from t_wx_member where id=#{memberId}
+        and lastQuestionId in (select id from t_question where
+        <include refid="categoryKind"></include>
+        )
+    </select>
+
+    <select id="findByMemberIdAndQuestionId" parameterType="map" resultType="map">
+        select * from tr_member_question where memberId=#{memberId} and questionId=#{id}
+    </select>
+
+    <update id="updateMemberQuestion" parameterType="map">
+        update tr_member_question set isFavorite=#{isFavorite},tag=#{tag},answerResult=#{answerResult}
+        where memberId=#{memberId} and questionId=#{id}
+    </update>
+
+    <insert id="addMemberQuestion" parameterType="map">
+        insert into tr_member_question(memberId,questionId,isFavorite,tag,answerResult)
+        values (#{memberId},#{id},#{isFavorite},#{tag},#{answerResult})
+    </insert>
+</mapper>

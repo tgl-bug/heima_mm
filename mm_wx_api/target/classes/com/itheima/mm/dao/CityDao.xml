@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.CityDao">
+
+
+    <select id="findCityByName" resultType="Dict" parameterType="string">
+        select id,dataValue title from t_dict where dataValue=#{name}
+    </select>
+    <select id="findCityListByFs" resultType="Dict" parameterType="string">
+        select id,dataValue title from t_dict where dataType=1
+        <if test="fs==1">
+            and dataTag=1
+        </if>
+    </select>
+</mapper>

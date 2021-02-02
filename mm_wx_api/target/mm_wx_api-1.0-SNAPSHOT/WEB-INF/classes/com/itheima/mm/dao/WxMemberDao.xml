@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.WxMemberDao">
+    <insert id="addWxMember" parameterType="WxMember">
+        insert into t_wx_member(nickName,avatarUrl,gender,city,province,country,language,openId,createTime)
+        values (#{nickName},#{avatarUrl},#{gender},#{city},#{province},#{country},#{language},#{openId},#{createTime})
+
+        <selectKey keyColumn="id" keyProperty="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <update id="update" parameterType="WxMember">
+        update t_wx_member set
+        nickName=#{nickName},avatarUrl=#{avatarUrl},gender=#{gender},
+        city=#{city},country=#{country},language=#{language},province=#{province},
+        openId=#{openId},unionId=#{unionId},cityId=#{cityId},courseId=#{courseId},
+        lastCategoryKind=#{lastCategoryKind},lastCategoryType=#{lastCategoryType},
+        lastCategoryId=#{lastCategoryId},lastQuestionId=#{lastQuestionId}
+        where id=#{id}
+    </update>
+
+    <select id="findByNickname" resultType="WxMember" parameterType="string">
+        select * from t_wx_member where nickname=#{nickname}
+    </select>
+    <select id="findById" resultType="WxMember" parameterType="int">
+        select * from t_wx_member where id=#{id}
+    </select>
+
+    <select id="findCityName" parameterType="int" resultType="string">
+        select dataValue from t_dict where id=#{cityId}
+    </select>
+
+    <select id="findAnswerCount" parameterType="int" resultType="int">
+        select count(*) from tr_member_question where memberId=#{memberId}
+    </select>
+
+    <select id="findLastAnswer" parameterType="int" resultType="map">
+        select
+        lastCategoryId categoryID,
+        lastCategoryType categoryType,
+        lastCategoryKind categoryKind
+        from t_wx_member
+        where id=#{id}
+    </select>
+
+    <select id="findCategoryTitle" parameterType="map" resultType="string">
+        select
+        <if test="categoryKind==1">
+            name from t_catalog
+        </if>
+        <if test="categoryKind==2">
+            shortName from t_company
+        </if>
+        where id=#{categoryID}
+    </select>
+</mapper>
